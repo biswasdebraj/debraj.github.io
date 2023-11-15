@@ -1,0 +1,41 @@
+<?php
+$con=mysqli_connect('localhost','codaphic_debraj','wb.52.ah.3434','codaphic_debraj');
+
+// Generated @ codebeautify.org
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v17.0/6098556636938255?fields=posts%7Bfull_picture%2Cmessage%2Ccreated_time%7D%2Cname%2Cpicture&access_token=EAANUTIl4FD8BAFwNVGUFJtyHQxHKCI5kruHctGPbJ0aeKSlLKuFsbDqBvNy91EBYZBxrtB2hr4S3GMM5mIZCQLrf5Wb8BicowEjx4DyJ2SpnJ7gRK5D6Qtx9wzZBnojT4Twh5IUoRCIycMOnwAZBfZCzAjPkEvkumlaePp0s4zmxIadUWkbRRUUyPJ6MfY48p3uzSqAxCMNeWGflEYcs9jgjyAtqrsX2WxY3wG9K5ZBP4oZAIdz8UIVc121Px5HAVELSHvifVHpZAAZDZD');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+
+
+$result = json_decode($result);
+//echo '<pre>';
+//print_r($result);
+mysqli_query($con, "delete from facebook_data");
+foreach($result->posts->data as $list){
+    //echo '<pre>';
+    //print_r($list->full_picture);
+    $message='';
+    $full_picture='';
+    $profile_picture='';
+    $created_time='';
+    if(isset($list->message)){
+        $message=$list->message;
+    }
+    if(isset($list->full_picture)){
+        $full_picture=$list->full_picture;
+    }
+    if(isset($list->created_time)){
+        $created_time=$list->created_time;
+    }
+    
+    $profile_picture=$result->picture->data->url;
+    mysqli_query($con,"insert into facebook_data(message,full_picture,created_time,profile_picture) values('$message','$full_picture','$created_time','$profile_picture')");
+}
+?>
